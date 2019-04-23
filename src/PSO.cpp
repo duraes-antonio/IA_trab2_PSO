@@ -12,8 +12,6 @@
 
 using namespace std;
 
-Best gbest;
-
 /*Variáveis recebidas do usuário*/
 int n_particulas, n_iteracoes;
 
@@ -44,6 +42,31 @@ double f(double x, double y) {
     return 0.5 + (numerador / denominador);
 }
 
+/*Cria, inicializa corretamente e retorna N partículas*/
+vector<Particula *> gerar_particulas(int num_particulas) {
+
+    Particula *temp_part;
+    vector<Particula *> particulas;
+
+    /*Gere uma posição randômica e a atribua para todas partículas*/
+    double pos_geral_x = rand_int(rand_engine);
+    double pos_geral_y = rand_int(rand_engine);
+
+    for (int i = 0; i < num_particulas; ++i) {
+        temp_part = (Particula *) malloc(sizeof(Particula));
+        temp_part->pbest.fitness = -1;
+        temp_part->pos.x = pos_geral_x;
+        temp_part->pos.y = pos_geral_y;
+
+        /*Para cada partícula, gere uma velocidade randômica p/ cada eixo*/
+        temp_part->vel.x = rand_double_vel(rand_engine);
+        temp_part->vel.y = rand_double_vel(rand_engine);
+        particulas.push_back(temp_part);
+    }
+
+    return particulas;
+}
+
 /*Calcula e retorna a nova velocidade da partícula*/
 double calc_v(double pbest_pos, double current_v, double p_pos, double gbest_pos){
 
@@ -64,54 +87,49 @@ int main(){
 
     ler_dados();
 
-    Particula ps[n_particulas];
+    vector<Particula *> ps = gerar_particulas(n_particulas);
+    Best gbest;
     gbest.fitness = DBL_MAX;
 
-    for (int i = 0; i < n_particulas; i++) {
-        ps[i].pos.x = rand_int(rand_engine);
-        ps[i].pos.y = rand_int(rand_engine);
-        ps[i].pbest.fitness = DBL_MAX;
-        ps[i].vel.x = rand_double_vel(rand_engine);
-        ps[i].vel.y = rand_double_vel(rand_engine);
-    }
+    for (int k = 0; k < n_iteracoes; ++k) {
 
-    for (int k = 0; k < n_iteracoes; k++) {
+        for (Particula *part: ps) {
+            double fitness = f(part->pos.x, part->pos.y);
 
-        for (int i = 0; i < n_particulas; i++) {
-            double fitness = f(ps[i].pos.x, ps[i].pos.y);
-            
-            if (fitness < ps[i].pbest.fitness) {
-                ps[i].pbest.pos = ps[i].pos;
-                ps[i].pbest.fitness = fitness;
+            if (fitness < part->pbest.fitness || part->pbest.fitness == -1.0) {
+                part->pbest.pos = part->pos;
+                part->pbest.fitness = fitness;
 
                 if (fitness < gbest.fitness) {
-                    gbest.pos = ps[i].pos;
+                    gbest.pos = part->pos;
                     gbest.fitness = fitness;
                 }
             }
 
-            ps[i].vel.x = calc_v(ps[i].pbest.pos.x, ps[i].vel.x, ps[i].pos.x, gbest.pos.x);
-            ps[i].vel.y = calc_v(ps[i].pbest.pos.y, ps[i].vel.y, ps[i].pos.y, gbest.pos.y);
+            part->vel.x = calc_v(part->pbest.pos.x, part->vel.x, part->pos.x, gbest.pos.x);
+            part->vel.y = calc_v(part->pbest.pos.y, part->vel.y, part->pos.y, gbest.pos.y);
 
-            ps[i].pos.x = ps[i].pos.x + ps[i].vel.x;
-            ps[i].pos.y = ps[i].pos.y + ps[i].vel.y;
+            part->pos.x = part->pos.x + part->vel.x;
+            part->pos.y = part->pos.y + part->vel.y;
 
-            if (ps[i].pos.x > POS_MAX) {
-                ps[i].pos.x = POS_MAX;
-                ps[i].vel.x = 0;
-            } else if (ps[i].pos.x < POS_MIN) {
-                ps[i].pos.x = POS_MIN;
-                ps[i].vel.x = 0;
+            if (part->pos.x > POS_MAX) {
+                part->pos.x = POS_MAX;
+                part->vel.x = 0;
+            } else if (part->pos.x < POS_MIN) {
+                part->pos.x = POS_MIN;
+                part->vel.x = 0;
             }
 
-            if (ps[i].pos.y > POS_MAX) {
-                ps[i].pos.y = POS_MAX;
-                ps[i].vel.y = 0;
-            } else if (ps[i].pos.y < POS_MIN) {
-                ps[i].pos.y = POS_MIN;
-                ps[i].vel.y = 0;
+            if (part->pos.y > POS_MAX) {
+                part->pos.y = POS_MAX;
+                part->vel.y = 0;
+            } else if (part->pos.y < POS_MIN) {
+                part->pos.y = POS_MIN;
+                part->vel.y = 0;
             }
         }
         cout << "Gbest de (" << gbest.pos.x << "," << gbest.pos.y << ") = " << gbest.fitness << endl;
     }
+
+    for (int i = 0; i < n_particulas; ++i) free(ps[i]);
 }
