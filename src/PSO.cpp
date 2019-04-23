@@ -3,27 +3,11 @@
 #include <time.h>
 #include <math.h>
 #include <float.h>
+#include "ia_estruturas.h"
 
 using namespace std;
 
-struct posicao {
-    double x;
-    double y;
-};
-
-struct best {
-    posicao pos;
-    double fitness;
-};
-
-struct particula {
-    posicao pos;
-    posicao v;
-    best pbest;
-};
-
-
-best gbest;
+Best gbest;
 double c1 = 2.05, c2 = 2.05;
 double r1, r2;
 int VMAX = 100;
@@ -48,8 +32,8 @@ double calc_v(double pbest_pos, double current_v, double p_pos, double gbest_pos
 int main(){
     int num_particulas;
     cin >> num_particulas;
-    
-    particula ps[num_particulas];
+
+    Particula ps[num_particulas];
     srand(time(NULL));
     gbest.fitness = DBL_MAX;
 
