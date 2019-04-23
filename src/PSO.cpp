@@ -1,8 +1,8 @@
 #include <iostream>
 #include <stdlib.h>
-#include <time.h>
 #include <math.h>
 #include <float.h>
+#include <random>
 #include "ia_estruturas.h"
 
 #define POS_MIN -100
@@ -16,8 +16,13 @@ Best gbest;
 
 /*Constantes*/
 double c1 = 2.05, c2 = 2.05;
-double r1, r2;
 
+/*Variáveis para gerar números pseudo-aleatórios*/
+random_device rand_semente;
+mt19937 rand_engine(rand_semente());
+uniform_int_distribution<int> rand_int(POS_MIN, POS_MAX);
+uniform_real_distribution<double> rand_double_vel(POS_MIN * V_FATOR, POS_MAX * V_FATOR);
+uniform_real_distribution<double> rand_double_pos(0, 1);
 
 double f(double x, double y){
     double numerador = pow(sin(sqrt(x*x + y*y)), 2) - 0.5;
@@ -26,12 +31,17 @@ double f(double x, double y){
 }
 
 double calc_v(double pbest_pos, double current_v, double p_pos, double gbest_pos){
-    r1 = ((double) rand() / (RAND_MAX));
-    r2 = ((double) rand() / (RAND_MAX));
 
-    double v = current_v + c1 * r1 * (pbest_pos - p_pos) + c2 * r2 * (gbest_pos - p_pos);
-    if (v > POS_MAX * V_FATOR) v = POS_MAX * 0.15;
-    else if (v < POS_MIN * V_FATOR) v = POS_MIN * 0.15;
+    double r1 = rand_double_pos(rand_engine);
+    double r2 = rand_double_pos(rand_engine);
+
+    double veloc_cognit = c1 * r1 * (pbest_pos - p_pos);
+    double veloc_social = c2 * r2 * (gbest_pos - p_pos);
+    double v = current_v + veloc_cognit + veloc_social;
+
+    if (v > POS_MAX * V_FATOR) v = POS_MAX * V_FATOR;
+    else if (v < POS_MIN * V_FATOR) v = POS_MIN * V_FATOR;
+
     return v;
 }
 
@@ -40,15 +50,14 @@ int main(){
     cin >> num_particulas;
 
     Particula ps[num_particulas];
-    srand(time(NULL));
     gbest.fitness = DBL_MAX;
 
     for (int i = 0; i < num_particulas; i++){
-        ps[i].pos.x = rand() % 201 - 100;
-        ps[i].pos.y = rand() % 201 - 100;
+        ps[i].pos.x = rand_int(rand_engine);
+        ps[i].pos.y = rand_int(rand_engine);
         ps[i].pbest.fitness = DBL_MAX;
-        ps[i].v.x = rand() % int(V_MAX * V_FATOR);
-        ps[i].v.y = rand() % int(V_MAX * V_FATOR);
+        ps[i].v.x = rand_double_vel(rand_engine);
+        ps[i].v.y = rand_double_vel(rand_engine);
     }
 
     for (int k = 0; k < 100; k++){
@@ -64,7 +73,6 @@ int main(){
                     gbest.pos = ps[i].pos;
                     gbest.fitness = fitness;
                     
-                    cout << "Gbest de (" << gbest.pos.x << "," << gbest.pos.y << ") = " << gbest.fitness << endl;
                 }
             }
 
@@ -90,6 +98,6 @@ int main(){
                 ps[i].v.y = 0;
             }
         }
-
+        cout << "Gbest de (" << gbest.pos.x << "," << gbest.pos.y << ") = " << gbest.fitness << endl;
     }
 }
