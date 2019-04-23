@@ -5,12 +5,18 @@
 #include <float.h>
 #include "ia_estruturas.h"
 
+#define POS_MIN -100
+#define POS_MAX 100
+#define V_FATOR 0.15
+#define V_MAX   100
+
 using namespace std;
 
 Best gbest;
+
+/*Constantes*/
 double c1 = 2.05, c2 = 2.05;
 double r1, r2;
-int VMAX = 100;
 
 
 double f(double x, double y){
@@ -24,8 +30,8 @@ double calc_v(double pbest_pos, double current_v, double p_pos, double gbest_pos
     r2 = ((double) rand() / (RAND_MAX));
 
     double v = current_v + c1 * r1 * (pbest_pos - p_pos) + c2 * r2 * (gbest_pos - p_pos);
-    if (v > VMAX * 0.15) v = VMAX * 0.15;
-    else if (v < -VMAX * 0.15) v = -VMAX * 0.15;
+    if (v > POS_MAX * V_FATOR) v = POS_MAX * 0.15;
+    else if (v < POS_MIN * V_FATOR) v = POS_MIN * 0.15;
     return v;
 }
 
@@ -41,8 +47,8 @@ int main(){
         ps[i].pos.x = rand() % 201 - 100;
         ps[i].pos.y = rand() % 201 - 100;
         ps[i].pbest.fitness = DBL_MAX;
-        ps[i].v.x = rand() % int (VMAX * 0.15);
-        ps[i].v.y = rand() % int (VMAX * 0.15);
+        ps[i].v.x = rand() % int(V_MAX * V_FATOR);
+        ps[i].v.y = rand() % int(V_MAX * V_FATOR);
     }
 
     for (int k = 0; k < 100; k++){
@@ -67,22 +73,20 @@ int main(){
 
             ps[i].pos.x = ps[i].pos.x + ps[i].v.x;
             ps[i].pos.y = ps[i].pos.y + ps[i].v.y;
-            
-            if (ps[i].pos.x > VMAX){
-                ps[i].pos.x = 100;
+
+            if (ps[i].pos.x > POS_MAX) {
+                ps[i].pos.x = POS_MAX;
                 ps[i].v.x = 0;
-            }
-            else if (ps[i].pos.x < -VMAX){
-                ps[i].pos.x = -100;
+            } else if (ps[i].pos.x < POS_MIN) {
+                ps[i].pos.x = POS_MIN;
                 ps[i].v.x = 0;
             }
 
-            if (ps[i].pos.y > VMAX){
-                ps[i].pos.y = 100;
+            if (ps[i].pos.y > POS_MAX) {
+                ps[i].pos.y = POS_MAX;
                 ps[i].v.y = 0;
-            }
-            else if (ps[i].pos.y < -VMAX){
-                ps[i].pos.y = -100;
+            } else if (ps[i].pos.y < POS_MIN) {
+                ps[i].pos.y = POS_MIN;
                 ps[i].v.y = 0;
             }
         }
