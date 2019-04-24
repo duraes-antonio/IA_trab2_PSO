@@ -1,16 +1,14 @@
 # Inteligência Artificial - Trabalho 2 - PSO
 
 ## DESCRIÇÃO
-Algoritmo: Otimização por Enxame de Partículas ou Particle Swarm Optimization (PSO)<br>
 <p align="justify"/>
-
-### OBJETIVO
-<p align="justify"/>
+A ideia principal desse trabalho é compreender o funcionamento do algorítimo PSO (Particle Swarm Optimization) e realizar sua implementação.
 
 ### EXEMPLO
 
 ## 1. EXPLICAÇÃO TEÓRICA DO ALGORITMO
 <p align="justify"/>
+Este algorítimo é utilizado principalmente para encontrar valores satisfatórios na aplicação de uma função matemática, isto é valores dentro de um threshold.
 
 ### 1.1 IMPLEMENTAÇÃO
 <p align="justify"/>
