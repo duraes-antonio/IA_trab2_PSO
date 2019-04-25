@@ -3,6 +3,9 @@
 #include <math.h>
 #include <float.h>
 #include <random>
+#include <stdio.h>
+#include <cstring>
+#include <string>
 #include "ia_estruturas.h"
 
 #define POS_MIN -100    /*Valor mínimo do intervalo de posição*/
@@ -26,14 +29,9 @@ uniform_int_distribution<int> rand_int(POS_MIN, POS_MAX);
 uniform_real_distribution<double> rand_double_vel(POS_MIN * V_FATOR, POS_MAX * V_FATOR);
 uniform_real_distribution<double> rand_double_pos(0, 1);
 
-/*Lê a qtd. de partículas e a qtd. de iterações*/
+/*Lê a qtd. de partículas*/
 void ler_dados() {
-
-    printf("\nDigite o número de partículas:\n");
     cin >> n_particulas;
-
-    printf("\nDigite o número de iterações:\n");
-    cin >> n_iteracoes;
 }
 
 /*Função fitness - Função a ter seu resultado minimizado*/
@@ -51,15 +49,11 @@ vector<Particula *> gerar_particulas(int num_particulas) {
     Particula *temp_part;
     vector<Particula *> particulas;
 
-    /*Gere uma posição randômica e a atribua para todas partículas*/
-    double pos_geral_x = rand_int(rand_engine);
-    double pos_geral_y = rand_int(rand_engine);
-
     for (int i = 0; i < num_particulas; ++i) {
         temp_part = (Particula *) malloc(sizeof(Particula));
         temp_part->pbest.fitness = -1;
-        temp_part->pos.x = pos_geral_x;
-        temp_part->pos.y = pos_geral_y;
+        temp_part->pos.x = rand_int(rand_engine);
+        temp_part->pos.y = rand_int(rand_engine);
 
         /*Para cada partícula, gere uma velocidade randômica p/ cada eixo*/
         temp_part->vel.x = rand_double_vel(rand_engine);
@@ -117,38 +111,60 @@ int main(){
 
     /*PASSO 1: Determinar o número de partículas e núm. de iterações*/
     ler_dados();
+    int iteracoes[] = {20, 50, 100};
+    FILE * fp;
 
-    /*PASSO 2 e 3: Inicializar cada partícula com a mesma posição e veloc. diferente*/
-    vector<Particula *> ps = gerar_particulas(n_particulas);
-    Best gbest;
-    gbest.fitness = DBL_MAX;
+    /*Loop para quantidade de execuções*/
+    for (int i = 0; i < 10; ++i){
 
-    for (int k = 0; k < n_iteracoes; ++k) {
+        /*Loop sobre o número de iterações*/
+        for (int n_iteracoes : iteracoes){
 
-        /*PASSO 4: Para cada partíc., calcular sua aptidão e verificar seu p-best*/
-        for (Particula *part: ps) {
-            double fitness = f(part->pos.x, part->pos.y);
+            /*Abrindo arquivo*/
+            string s = to_string(i)+"_"+to_string(n_iteracoes)+"_"+to_string(n_particulas)+".txt";
+            char file_name[s.size()+1];
+            strcpy(file_name, s.c_str());
+            fp = fopen (file_name,"w");
 
-            if (fitness < part->pbest.fitness || part->pbest.fitness == -1.0) {
-                part->pbest.pos = part->pos;
-                part->pbest.fitness = fitness;
+            /*PASSO 2 e 3: Inicializar cada partícula com a mesma posição e veloc. diferente*/
+            vector<Particula *> ps = gerar_particulas(n_particulas);
+            Best gbest;
+            gbest.fitness = DBL_MAX;
 
-                /*PASSO 5: Descobrir qual a melhor partícula globalmente.
-                 *Verificação dentro do loop atual para evitar o custo de loop
-                 * adicional só para verificar cada partícula*/
-                if (fitness < gbest.fitness) {
-                    gbest.pos = part->pos;
-                    gbest.fitness = fitness;
+            for (int k = 0; k < n_iteracoes; ++k) {
+
+                /*PASSO 4: Para cada partíc., calcular sua aptidão e verificar seu p-best*/
+                for (Particula *part: ps) {
+                    double fitness = f(part->pos.x, part->pos.y);
+
+                    if (fitness < part->pbest.fitness || part->pbest.fitness == -1.0) {
+                        part->pbest.pos = part->pos;
+                        part->pbest.fitness = fitness;
+
+                        /*PASSO 5: Descobrir qual a melhor partícula globalmente.
+                        *Verificação dentro do loop atual para evitar o custo de loop
+                        * adicional só para verificar cada partícula*/
+                        if (fitness < gbest.fitness) {
+                            gbest.pos = part->pos;
+                            gbest.fitness = fitness;
+                        }
+                    }
+
+                    /*PASSO 6a e 6b: Atualizar a velocidade e a posição de cada eixo*/
+                    part->vel.x = calc_v(part->pbest.pos.x, part->vel.x, part->pos.x, gbest.pos.x);
+                    part->vel.y = calc_v(part->pbest.pos.y, part->vel.y, part->pos.y, gbest.pos.y);
+                    atualizar_posicao(part);
                 }
+
+                /*Escrevendo o Gbest*/
+                fprintf(fp,"i%d - Gbest de (%.4e, %.4e) = %.4e\n", k+1, gbest.pos.x, gbest.pos.y, gbest.fitness);
             }
 
-            /*PASSO 6a e 6b: Atualizar a velocidade e a posição de cada eixo*/
-            part->vel.x = calc_v(part->pbest.pos.x, part->vel.x, part->pos.x, gbest.pos.x);
-            part->vel.y = calc_v(part->pbest.pos.y, part->vel.y, part->pos.y, gbest.pos.y);
-            atualizar_posicao(part);
-        }
-        printf("i%d - Gbest de (%.4e, %.4e) = %.4e\n", k+1, gbest.pos.x, gbest.pos.y, gbest.fitness);
-    }
+            /*Fechando arquivo*/
+            fclose(fp);
 
-    for (int i = 0; i < n_particulas; ++i) free(ps[i]);
+            /*Dá free nas particulas*/
+            for (int j = 0; j < n_particulas; ++j) free(ps[j]);
+        }
+    }
 }
