@@ -109,10 +109,10 @@ void atualizar_posicao(Particula* particula) {
     }
 }
 
-int main(){
+int main(int argc, char *argv[]){
 
     /*PASSO 1: Determinar o número de partículas e núm. de iterações*/
-    ler_dados();
+    n_particulas = atoi(argv[1]);
     int iteracoes[] = {20, 50, 100};
     FILE * arquivo;
 
