@@ -12,6 +12,7 @@
 #define POS_MAX 100     /*Valor máximo do intervalo de posição*/
 #define V_FATOR 0.15    /*15% do intervalo acima*/
 #define V_MAX   100
+#define N_EXEC  10
 
 using namespace std;
 
@@ -31,6 +32,7 @@ uniform_real_distribution<double> rand_double_pos(0, 1);
 
 /*Lê a qtd. de partículas*/
 void ler_dados() {
+    cout << "\nDigite a quantidade de partículas desejadas:\n";
     cin >> n_particulas;
 }
 
@@ -42,12 +44,12 @@ double f(double x, double y) {
 }
 
 /*Cria, inicializa corretamente e retorna N partículas*/
-/*TODO: Alterar para posição aleatória p/ cada partícula
- * e velocidade inicial igual para todas e comparar resultados*/
 vector<Particula *> gerar_particulas(int num_particulas) {
 
     Particula *temp_part;
     vector<Particula *> particulas;
+    double geral_vx = rand_double_vel(rand_engine);
+    double geral_vy = rand_double_vel(rand_engine);
 
     for (int i = 0; i < num_particulas; ++i) {
         temp_part = (Particula *) malloc(sizeof(Particula));
@@ -56,8 +58,8 @@ vector<Particula *> gerar_particulas(int num_particulas) {
         temp_part->pos.y = rand_int(rand_engine);
 
         /*Para cada partícula, gere uma velocidade randômica p/ cada eixo*/
-        temp_part->vel.x = rand_double_vel(rand_engine);
-        temp_part->vel.y = rand_double_vel(rand_engine);
+        temp_part->vel.x = geral_vx;
+        temp_part->vel.y = geral_vy;
         particulas.push_back(temp_part);
     }
 
@@ -112,19 +114,21 @@ int main(){
     /*PASSO 1: Determinar o número de partículas e núm. de iterações*/
     ler_dados();
     int iteracoes[] = {20, 50, 100};
-    FILE * fp;
+    FILE * arquivo;
 
     /*Loop para quantidade de execuções*/
-    for (int i = 0; i < 10; ++i){
+    for (int i = 0; i < N_EXEC; ++i){
 
         /*Loop sobre o número de iterações*/
         for (int n_iteracoes : iteracoes){
 
+            /*Nomeie os arquivos de saída no seguinte formato:
+             *NUM-EXECUCOES_NUM-ITERACOES_NUM-PARTICULAS*/
+            char buffer[128];
+            sprintf(buffer, "%dp_%di_%dexec.csv", n_particulas, n_iteracoes, i+1);
+
             /*Abrindo arquivo*/
-            string s = to_string(i)+"_"+to_string(n_iteracoes)+"_"+to_string(n_particulas)+".txt";
-            char file_name[s.size()+1];
-            strcpy(file_name, s.c_str());
-            fp = fopen (file_name,"w");
+            arquivo = fopen(buffer, "w");
 
             /*PASSO 2 e 3: Inicializar cada partícula com a mesma posição e veloc. diferente*/
             vector<Particula *> ps = gerar_particulas(n_particulas);
@@ -156,12 +160,12 @@ int main(){
                     atualizar_posicao(part);
                 }
 
-                /*Escrevendo o Gbest*/
-                fprintf(fp,"i%d - Gbest de (%.4e, %.4e) = %.4e\n", k+1, gbest.pos.x, gbest.pos.y, gbest.fitness);
+                /*Escreva o número da iteração e o resultado do gbest atual*/
+                fprintf(arquivo, "%d;%.30lf\n", k+1, gbest.fitness);
             }
 
             /*Fechando arquivo*/
-            fclose(fp);
+            fclose(arquivo);
 
             /*Dá free nas particulas*/
             for (int j = 0; j < n_particulas; ++j) free(ps[j]);
