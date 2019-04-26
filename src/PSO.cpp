@@ -42,11 +42,17 @@ vector<Particula *> gerar_particulas(int num_particulas) {
 
     Particula *temp_part;
     vector<Particula *> particulas;
+
+    /*[Instrução da ESPECIFICAÇÃO]
+     * Gere a velocidade randômica de X e de Y, atribua a p/ todas partículas*/
     double geral_vx = rand_double_vel(rand_engine);
     double geral_vy = rand_double_vel(rand_engine);
 
+    /*Para cada partícula*/
     for (int i = 0; i < num_particulas; ++i) {
         temp_part = (Particula *) malloc(sizeof(Particula));
+
+        /*Defina um fitness padrão (flag), atribua a posição X e Y randômicas*/
         temp_part->pbest.fitness = -1;
         temp_part->pos.x = rand_int(rand_engine);
         temp_part->pos.y = rand_int(rand_engine);
@@ -63,13 +69,18 @@ vector<Particula *> gerar_particulas(int num_particulas) {
 /*Calcula e retorna a nova velocidade da partícula*/
 double calc_v(double pbest_pos, double current_v, double p_pos, double gbest_pos){
 
+    /*Gere os valores randômicos entre 0 e 1 para r1 e r2*/
     double r1 = rand_double_pos(rand_engine);
     double r2 = rand_double_pos(rand_engine);
 
+    /*Calcule a velocidade cognitiva e social*/
     double veloc_cognit = c1 * r1 * (pbest_pos - p_pos);
     double veloc_social = c2 * r2 * (gbest_pos - p_pos);
+
+    /*Calcule a velocidade final com o fator de inércia*/
     double v = w * current_v + veloc_cognit + veloc_social;
 
+    /*Se ultrapassar o limite máximo/mínimo, defina vel. como máx/min*/
     if (v > POS_MAX * V_FATOR) v = POS_MAX * V_FATOR;
     else if (v < POS_MIN * V_FATOR) v = POS_MIN * V_FATOR;
 
@@ -105,30 +116,33 @@ void atualizar_posicao(Particula* particula) {
 
 int main(int argc, char *argv[]){
 
-    /*PASSO 1: Determinar o número de partículas e núm. de iterações*/
+    /*PASSO 1: Determinar o número de partículas*/
     n_particulas = atoi(argv[1]);
+
+    /*[ESPCIFICAÇÃO] Estabeleça o número de iterações*/
     int iteracoes[] = {20, 50, 100};
     FILE * arquivo;
 
     /*Loop para quantidade de execuções*/
     for (int i = 0; i < N_EXEC; ++i){
 
-        /*Loop sobre o número de iterações*/
+        /*Para cada conjunto de iterações (20, 50, 100)*/
         for (int n_iteracoes : iteracoes){
 
             /*Nomeie os arquivos de saída no seguinte formato:
-             *NUM-EXECUCOES_NUM-ITERACOES_NUM-PARTICULAS*/
+             *{NUM-PARTICULA}p_{NUM-ITERAÇÕES}i_{NUM-EXECUÇÃO-ATUAL}exec.csv*/
             char buffer[128];
             sprintf(buffer, "%dp_%di_%dexec.csv", n_particulas, n_iteracoes, i+1);
 
             /*Abrindo arquivo*/
             arquivo = fopen(buffer, "w");
 
-            /*PASSO 2 e 3: Inicializar cada partícula com a mesma posição e veloc. diferente*/
+            /*PASSO 2 e 3: Inicializar cada partícula com a mesma veloc. e posição diferente*/
             vector<Particula *> ps = gerar_particulas(n_particulas);
             Best gbest;
             gbest.fitness = DBL_MAX;
 
+            /*Para cada iteração*/
             for (int k = 0; k < n_iteracoes; ++k) {
 
                 /*PASSO 4: Para cada partíc., calcular sua aptidão e verificar seu p-best*/
@@ -161,7 +175,7 @@ int main(int argc, char *argv[]){
             /*Fechando arquivo*/
             fclose(arquivo);
 
-            /*Dá free nas particulas*/
+            /*Libera a memória alocada dinamicamente*/
             for (int j = 0; j < n_particulas; ++j) free(ps[j]);
         }
     }
