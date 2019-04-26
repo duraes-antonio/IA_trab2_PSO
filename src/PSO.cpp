@@ -17,7 +17,7 @@
 using namespace std;
 
 /*Variáveis recebidas do usuário*/
-int n_particulas, n_iteracoes;
+int n_particulas;
 
 /*Constantes;
  *Coeficiente cognitivo, coef. social e fator de inércia*/
@@ -29,12 +29,6 @@ mt19937 rand_engine(rand_semente());
 uniform_int_distribution<int> rand_int(POS_MIN, POS_MAX);
 uniform_real_distribution<double> rand_double_vel(POS_MIN * V_FATOR, POS_MAX * V_FATOR);
 uniform_real_distribution<double> rand_double_pos(0, 1);
-
-/*Lê a qtd. de partículas*/
-void ler_dados() {
-    cout << "\nDigite a quantidade de partículas desejadas:\n";
-    cin >> n_particulas;
-}
 
 /*Função fitness - Função a ter seu resultado minimizado*/
 double f(double x, double y) {
