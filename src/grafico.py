@@ -14,7 +14,7 @@ except ImportError:
 	if (platform.system().upper() != "WINDOWS"):
 		system("pip3 install --user matplotlib 2>&1 >/dev/null")
 		system("sudo apt install python3-tk 2>&1 >/dev/null")
-		system("ls")
+		system("clear")
 
 	else:
 		system("pip install --user matplotlib /quiet")
@@ -124,9 +124,11 @@ def main():
 
 		except KeyboardInterrupt:
 			print("\nPrograma finalizado! Bye...\n")
+			exit(0)
 
 		except Exception:
 			print("\nErro desconhecido, saido...\n")
+			exit(1)
 
 		# Compile e execute o PSO em C++
 		system("g++ -Wall -o PSO PSO.cpp")
@@ -153,8 +155,8 @@ def main():
 		last_y = val_eixo_y[-1]
 
 		# Nomeie os eixos X e Y
-		pyplot.xlabel("Número de iterações")
-		pyplot.ylabel("Número da iteração")
+		pyplot.xlabel("Número da iteração")
+		pyplot.ylabel("Fitness i-ésimo gbest")
 
 		# Marque o melhor Gbest de forma destacada (em vermelho) no gráfico
 		pyplot.text(last_x, last_y + 0.0001, f"{last_y:.2e}", color="red", fontsize=10)
