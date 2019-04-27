@@ -56,7 +56,7 @@ def carregar_csv(n_particulas):
 		# Para cada iteração, calcule a média:
 		# Média = (soma da i-ésima iteração em todas execuções) / número de iterações
 		for i, valor in enumerate(sums):
-			sums[i] = valor / n_iteracoes
+			sums[i] = valor / 10
 
 		# Armazene a média no dicionário
 		media[n_iteracoes] = sums
