@@ -310,7 +310,23 @@ As instruções abaixo foram testadas em distribuições Linux (Ubuntu 18.04 LTS
 
 Para executar o código é necessário ter instalado:
 * Python 3
-* g++ (Compilador para C++)
+* g++ (Ou outro compilador para C++)
+
+IMPORTANTE: Os comandos devem ser executados na pasta "src"!
+
+*Se deseja plotar o gráfico com a média de cada iteração em todas execuções*, execute o seguinte comando:
+```shell
+python3 grafico.py [Para distribuições Linux]
+```
+
+```shell
+python grafico.py [Para sistemas Windows]
+```
+
+<p align="justify"/>
+Com o comando acima, o script em Python se encarregará de encapsular o processo de compilação e chamada do algorítimo escrito em C++, além ler os arquivos de saída gerados, realizar cálculo da média de cada iteração em todas execuções e plotagem do gráfico. Além disso, o script instala a biblioteca necessária para plotagem do gráfico, a matplotlib.
+
+*SE DESEJA APENAS GERAR OS ARQUIVOS DE SAÍDA, SEM A PLOTAGEM*, execute:
 
 1. Compile o código com o seguinte comando (se estiver em um terminal com suporte ao compilador g++):
 ```shell
@@ -319,16 +335,40 @@ g++ -Wall -o nome_executavel PSO.cpp
 
 2. Execute o código com o seguinte comando:
 ```shell
-./nome_executavel
+./nome_executavel numero_de_particulas [Em distribuições Linux]
+```
+
+```shell
+nome_executavel.exe numero_de_particulas [Em sistemas Windows]
 ```
 
 ### 3.1 ENTRADAS
-
 O algoritimo recebe como entrada um parâmetro:
 * Número de partículas: Quantidade de partículas que buscarão a minimização do resultado da função fitness.
 
 ### 3.2 SAÍDA
-<p align="justify"/>
+Ao executar o PSO, em C++, serão gerado os arquivos contendo o melhor valor global (gbest) encontrado pelas partículas após cada iteração. O nome do arquivo de saída obedece o seguinte formato: {núm. de partículas}p_{núm. de iterações}i_{núm. da execução atual}exec.csv.<br><br>
+
+Exemplos de nomes de arquivo p/ 20 partículas, 50 iterações e 10 execuções: "20p_50i_1exec.csv", "20p_50i_2exec.csv".<br>
+
+Cada linha contém o número da iteração atual (começando de 1) e o valor do fitness do gbest nesta iteração.<br><br>
+
+Ao executar o script em Python, também será gerada uma planilha (.csv) para cada conjunto de iterações. Nesta planilha é possível acompanhar o valor de cada gbest de cada iteração em todas execuções, todos gbests da iteração 1, nas 10 execuções   (exemplo abaixo).<br><br>
+
+| i_execução | i_iteracao | i_fitness |
+| ---------- |:----------:| ---------|
+| 1 | 1 | 0,396845098011183 |
+| 2 | 1 | 0,388414202706324 |
+| 3 | 1 | 0,210937976025201 |
+| 4 | 1 | 0,215176078561227 |
+| 5 | 1 | 0,310219979551145 |
+| 6 | 1 | 0,355814226748238 |
+| 7 | 1 | 0,265906743158297 |
+| 8 | 1 | 0,317603218703804 |
+| 9 | 1 | 0,110552541151555 |
+| 10 | 1 | 0,457149916451978 |
+
+O nome da planilha segue o formato: TABELA_{núm. de partículas}p_{núm. de iterações}i.csv.
 
 ## 4. FERRAMENTAS UTILIZADAS
 * g++: Compilador que integra o pacote de ferramentas GCC (GNU Compiler Collection), pacote nativo em distribuições Linux.
